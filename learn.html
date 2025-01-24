@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Traffic Management - Emergency Services</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  
+  <!-- Add Leaflet Routing Machine CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+  <style>
+    /* General styles */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
+
+    header {
+      background-color: #3f51b5;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    #content {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .section {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      flex: 1;
+      min-width: 300px;
+      padding: 20px;
+    }
+
+    .section h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #333;
+    }
+
+    .section p {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    #map {
+      height: 400px;
+      width: 100%;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #3f51b5;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #303f9f;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">
+      <img src="logo.jpg" alt="" style="width: 80px; height: 80px; border-radius: 50%;">
+    </div>
+    <ul class="nav-options">
+      <li><a href="SMT.html">About</a></li>
+      <li><a href="SMT.html">Explore Solutions</a></li>
+      <li><a href="SMT.html">View Insights</a></li>
+      <li><a href="SMT.html">Monitor</a></li>
+    </ul>
+  </nav>
+
+  <div id="content" style="position: relative;margin-top: 100px;background-color: #6e6e6e;">
+    <!-- Overview Section -->
+    <div class="section" style="background-color: #333;">
+      <h2 style="color: white;">About Smart Traffic Management</h2>
+      <p style="color: rgb(177, 176, 176);">
+        Smart traffic management uses advanced technologies such as IoT, GPS, and real-time data analytics
+        to ensure efficient routing for emergency services like ambulances, fire trucks, and police vehicles.
+        By dynamically adjusting traffic signals and providing optimized routes, it helps save precious time
+        during emergencies.
+      </p>
+      <p style="color: rgb(177, 176, 176);">
+        Explore the map below to see how smart routing can assist emergency services in reaching their destination
+        with minimal delay.
+      </p>
+    </div>
+
+    <!-- How it Works Section -->
+    <div class="section" style="background-color: #333;">
+      <h2 style="color: white;">How It Works</h2>
+      <p style="color: rgb(177, 176, 176);">
+        
+        1. <span style="font-weight: bold;color: beige;">Real-Time Traffic Data</span>: Monitors traffic conditions using sensors and APIs.<br>
+        2. <span style="font-weight: bold;color: beige;">Dynamic Routing</span>: Calculates the fastest route based on traffic congestion and road conditions.<br>
+        3. <span style="font-weight: bold;color: beige;">Priority Signals</span>: Adjusts traffic lights to give way to emergency vehicles.<br>
+        4. <span style="font-weight: bold;color: beige;">Centralized System</span>: Integrates all data into a centralized platform for real-time decision-making.
+      </p>
+      <button onclick="fetchEmergencyRoutes()">Show Emergency Routing</button>
+    </div>
+  </div>
+
+  <!-- Map Section -->
+  <div class="section" style="width: 100%; padding: 0;">
+    <div id="map"></div>
+  </div>
+
+  <script>
+    // Initialize the map
+    const map = L.map('map').setView([12.9716, 77.5946], 13); // Default location: Bangalore
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Placeholder data for emergency routes
+    const emergencyRoutes = [
+      {
+        start: [12.9716, 77.5946],
+        end: [12.9761, 77.6033],
+        description: "Route for Ambulance - Central to Hospital A"
+      },
+      {
+        start: [12.9352, 77.6245],
+        end: [12.9395, 77.6325],
+        description: "Route for Fire Truck - East Zone to Fire Station B"
+      }
+    ];
+
+    // Function to fetch and display emergency routes
+    function fetchEmergencyRoutes() {
+      // Clear existing routes
+      map.eachLayer((layer) => {
+        if (layer instanceof L.Routing.Control) {
+          map.removeLayer(layer);
+        }
+      });
+
+      emergencyRoutes.forEach((routeData) => {
+        // Create a routing control
+        L.Routing.control({
+          waypoints: [
+            L.latLng(routeData.start),
+            L.latLng(routeData.end)
+          ],
+          routeWhileDragging: true,
+          createMarker: function() { return null; } // Disable markers
+        }).addTo(map);
+
+        // Optionally, you can add a popup with the description
+        L.marker(routeData.start)
+          .addTo(map)
+          .bindPopup(routeData.description)
+          .openPopup();
+      });
+    }
+  </script>
+</body>
+</html>

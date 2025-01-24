@@ -1,0 +1,317 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body::-webkit-scrollbar {
+    display: none; 
+  }
+  
+.navbar {
+    display: flex;
+    height: 100px;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1b1b1b;
+    color: white;
+    padding: 10px 20px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 10;
+    border-radius: 0px 0px 15px 15px; 
+    box-shadow: 0px 4px 8px rgba(0, 2, 0, 0.834); 
+    background: linear-gradient(#151515, #202020, #151515); 
+}
+
+
+.navbar .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.nav-options {
+    list-style-type: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-options li a {
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+.nav-options li a:hover {
+    color: #1dd7b2;
+}
+
+.slider-container {
+    position: relative;
+    max-width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    margin-top: 30px; 
+    margin-bottom: 50px;
+}
+
+.slide {
+    display: none;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+}
+
+img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.text {
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    transform: translateY(-50%);
+    color: #fff;
+    opacity: 0;
+    animation: slideInText 1s ease-in-out forwards;
+    animation-delay: 0.5s;
+}
+
+h1 {
+    font-size: 3rem;
+}
+
+h1 span.large {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #11ab8d;
+}
+
+h1 span.small {
+    font-size: 2rem;
+    font-weight: lighter;
+    opacity: 0.7;
+}
+
+h2 {
+    font-size: 4rem;
+    margin: 10px 0;
+}
+
+p {
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin-bottom: 20px;
+}
+
+.buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.services {
+    background-color: #0e6655;
+    color: #fff;
+}
+
+.learn-more {
+    background-color: #fff;
+    color: #0e6655;
+    border: 1px solid #0e6655;
+}
+
+.prev, .next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    color: #fff;
+    cursor: pointer;
+    padding: 10px;
+    user-select: none;
+    z-index: 1;
+}
+
+.prev {
+    left: 10px;
+}
+
+.next {
+    right: 10px;
+}
+
+.dots-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+}
+
+.dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin: 0 5px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.active, .dot:hover {
+    background-color: #0e6655;
+}
+
+@keyframes slideInText {
+    from {
+        transform: translate(50px, -50%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(0, -50%);
+        opacity: 1;
+    }
+}
+
+.fade {
+    animation-name: fadeEffect;
+    animation-duration: 1.5s;
+}
+
+@keyframes fadeEffect {
+    from {opacity: 0.4}
+    to {opacity: 1}
+}
+
+/* Modal Background */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+    backdrop-filter: blur(5px); /* Background blur effect */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Modal Content Box */
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    position: relative;
+    text-align: center;
+}
+
+/* Close Button */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Toggle Buttons */
+.toggle-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.toggle {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background-color: #ddd;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.toggle.active {
+    background-color: rgb(14, 109, 109);
+    color: #fff;
+}
+
+/* Form Styling */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input[type="text"],
+input[type="password"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.terms {
+    text-align: left;
+    margin: 10px 0;
+    font-size: 0.9em;
+}
+
+.btn.login-btn {
+    background-color: rgb(14, 109, 109);
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.box {
+    clear: both;
+    position: relative;
+    margin-top: 0px;
+    display: flex;
+    flex-direction: row;
+    width: 100%; /* Ensures the boxes span the full width of the screen */
+}
+
+.box > div {
+    flex: 1; /* Equal width for all boxes */
+    height: 250px;
+}
+  
+.box1 {
+    padding: 20px;
+    background-color: #002d24;
+}
+
+.box2 {
+    padding: 20px;
+    background-color: #145e4f;
+}
+
+.box3 {
+    padding: 20px;
+    background-color: #53877d;
+}
+

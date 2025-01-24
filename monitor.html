@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Traffic Monitoring</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    /* General styles */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+    }
+
+    header {
+      background-color: #181818;
+      color: white;
+      text-align: center;
+      padding: 25px 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    #controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      width: 300px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      color: white;
+      background-color: #015564;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #015564;
+    }
+
+    #map {
+      height: 60vh;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    #insights {
+      padding: 20px;
+      background-color: #ffffff;
+      border-top: 2px solid #ddd;
+      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+    }
+
+    #insights h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #333;
+    }
+
+    .traffic-item {
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background-color: #fafafa;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .traffic-item h3 {
+      margin: 0 0 5px;
+      font-size: 16px;
+      color: #444;
+    }
+
+    .traffic-item p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .no-data {
+      text-align: center;
+      color: #888;
+      font-size: 16px;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="logo.jpg" alt="" style="width: 80px; height: 80ox; border-radius: 50%;">
+        </div>
+        <ul class="nav-options">
+            <li><a href="SMT.html">About</a></li>
+            <li><a href="SMT.html">Explore Solutions</a></li>
+            <li><a href="SMT.html">View Insights</a></li>
+            <li><a href="SMT.html">Monitor</a></li>
+        </ul>
+    </nav>
+
+  <div id="controls" style="margin-top: 110px;">
+    <input type="text" id="locationInput" placeholder="Enter a location (e.g., Bangalore)" />
+    <button onclick="fetchLocation()">Find Location</button>
+  </div>
+
+  <div id="map"></div>
+  <div id="insights">
+    <h2>Traffic Insights</h2>
+    <div id="trafficInsights" class="no-data" style="align-self: center;">Enter a location to view traffic insights.</div>
+  </div>
+
+  <script>
+    // Initialize the map
+    const map = L.map('map').setView([12.9716, 77.5946], 13); // Default location: Bangalore
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Expanded traffic data covering more areas in Bangalore
+    const placeholderTrafficData = [
+      { lat: 12.9716, lon: 77.5946, severity: 'high', description: 'Heavy congestion near MG Road.' },  // MG Road
+      { lat: 12.9611, lon: 77.6387, severity: 'medium', description: 'Moderate traffic near Koramangala.' },  // Koramangala
+      { lat: 12.9260, lon: 77.6762, severity: 'low', description: 'Smooth flow near Whitefield.' },  // Whitefield
+      { lat: 12.9447, lon: 77.6101, severity: 'high', description: 'Severe traffic near Indiranagar.' },  // Indiranagar
+      { lat: 12.9350, lon: 77.6243, severity: 'medium', description: 'Moderate congestion at Bellandur.' },  // Bellandur
+      { lat: 12.9295, lon: 77.6210, severity: 'low', description: 'Light traffic near HSR Layout.' },  // HSR Layout
+      { lat: 12.9537, lon: 77.6355, severity: 'high', description: 'High congestion near BTM Layout.' },  // BTM Layout
+      { lat: 12.9871, lon: 77.6362, severity: 'medium', description: 'Moderate traffic near Electronic City.' },  // Electronic City
+      { lat: 12.9097, lon: 77.6336, severity: 'low', description: 'Clear roads near Banashankari.' },  // Banashankari
+      { lat: 12.9685, lon: 77.6117, severity: 'high', description: 'Severe traffic near Rajajinagar.' },  // Rajajinagar
+    ];
+
+    // Function to display traffic data
+    function displayTrafficData(data) {
+      const trafficInsightsDiv = document.getElementById('trafficInsights');
+      trafficInsightsDiv.innerHTML = '';
+
+      // Remove existing map markers
+      map.eachLayer((layer) => {
+        if (layer instanceof L.Circle) {
+          map.removeLayer(layer);
+        }
+      });
+
+      data.forEach((trafficPoint) => {
+        const { lat, lon, severity, description } = trafficPoint;
+
+        // Add a marker on the map
+        const markerColor = severity === 'high' ? 'red' : severity === 'medium' ? 'yellow' : 'green';
+        L.circle([lat, lon], {
+          color: markerColor,
+          fillColor: markerColor,
+          fillOpacity: 0.5,
+          radius: 100,
+        })
+          .addTo(map)
+          .bindPopup(`<strong>Severity:</strong> ${severity}<br><strong>Description:</strong> ${description}`);
+
+        // Add details to the insights section
+        const trafficItem = document.createElement('div');
+        trafficItem.className = 'traffic-item';
+        trafficItem.innerHTML = `
+          <h3>Severity: ${severity.toUpperCase()}</h3>
+          <p>${description}</p>
+          <p><strong>Coordinates:</strong> [${lat.toFixed(4)}, ${lon.toFixed(4)}]</p>
+        `;
+        trafficInsightsDiv.appendChild(trafficItem);
+      });
+
+      if (data.length === 0) {
+        trafficInsightsDiv.innerHTML = '<p class="no-data">No traffic data available for this location.</p>';
+      }
+    }
+
+    // Function to fetch location details
+    async function fetchLocation() {
+      const location = document.getElementById('locationInput').value;
+
+      if (!location) {
+        alert('Please enter a location!');
+        return;
+      }
+
+      try {
+        // Use OpenStreetMap Nominatim API to get location details
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${location}&addressdetails=1&limit=1`);
+        const data = await response.json();
+
+        if (data.length > 0) {
+          const { lat, lon } = data[0];
+
+          // Center the map to the selected location
+          map.setView([lat, lon], 13);
+
+          // Display traffic data near the selected location
+          displayTrafficData(placeholderTrafficData);
+        } else {
+          alert('Location not found!');
+        }
+      } catch (error) {
+        console.error('Error fetching location:', error);
+        alert('Error fetching location data.');
+      }
+    }
+
+  </script>
+</body>
+</html>
